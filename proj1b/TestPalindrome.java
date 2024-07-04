@@ -6,7 +6,6 @@ public class TestPalindrome {
     // new Palindromes, or the autograder might be upset.
     static Palindrome palindrome = new Palindrome();
     static CharacterComparator offByOne = new OffByOne();
-    static
 
     @Test
     public void testWordToDeque() {
