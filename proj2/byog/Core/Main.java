@@ -27,6 +27,7 @@ public class Main {
     public static void drawMenu(){
         StdDraw.clear(StdDraw.BLACK);
         StdDraw.setPenColor(StdDraw.WHITE);
+        StdDraw.text(0.5, 0.8, "CS61B GAME");
         StdDraw.text(0.5, 0.55, "New Game [N]");
         StdDraw.text(0.5, 0.5, "Load Game [L]");
         StdDraw.text(0.5, 0.45, "Quit Game [Q]");

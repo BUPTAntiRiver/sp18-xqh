@@ -47,6 +47,9 @@ public class Game {
             default:return null;
         }
         for(int i = 1; i < input.length(); i += 1){
+            if(input.charAt(i) == 'S'){
+                break;
+            }
             seed = seed * 10;
             seed += input.charAt(i) - '0';
         }
@@ -67,11 +70,13 @@ public class Game {
         initTETile(floorWorldFrame);
         initTETile(wallWorldFrame);
 
-        int roomNumber = RandomUtils.uniform(r, 0, 20);
+        int roomNumber = RandomUtils.uniform(r, 0, 30);
         int hallwayNumber = RandomUtils.uniform(r, 0, 10);
 
         for(int i = 0; i < roomNumber; i += 1){
-            makeRoom(floorWorldFrame, wallWorldFrame, r);
+            Room room = new Room(r);
+            room.drawFloor(floorWorldFrame);
+            room.drawWall(wallWorldFrame);
         }
 
         for(int i = 0; i < hallwayNumber; i += 1){
