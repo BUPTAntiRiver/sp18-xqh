@@ -2,6 +2,10 @@ package byog.Core;
 
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
+import byog.TileEngine.Tileset;
+
+
+import java.util.Random;
 
 public class Game {
     TERenderer ter = new TERenderer();
@@ -32,7 +36,58 @@ public class Game {
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
 
-        TETile[][] finalWorldFrame = null;
+        /* Create a iterator to traverse the input string */
+        int seed = 0;
+        switch (input.charAt(0)){
+            case 'N':break;
+            case 'Q':return null;
+            case 'L':return null;
+            default:return null;
+        }
+        for(int i = 1; i < input.length(); i += 1){
+            seed = seed * 10;
+            seed += input.charAt(i) - '0';
+        }
+
+        Random r = new Random(seed);
+
+        TETile[][] finalWorldFrame = new TETile[WIDTH][HEIGHT];
+        resetTETile(finalWorldFrame);
+
+        int roomNumber = RandomUtils.uniform(r, 0, 10);
+        int hallwayNumber = RandomUtils.uniform(r, 0, 10);
+
         return finalWorldFrame;
+    }
+
+    public void resetTETile(TETile[][] t){
+        for(int x = 0; x < WIDTH; x += 1){
+            for(int y = 0; y < HEIGHT; y += 1){
+                t[x][y] = Tileset.NOTHING;
+            }
+        }
+    }
+
+    /**
+     * Create a random sized room on specific position.
+     */
+    public void makeRoom(TETile[][] world, Random r, int xPos, int yPos){
+        int width = RandomUtils.uniform(r, 5, 10);
+        int height = RandomUtils.uniform(r, 5, 10);
+        for(int x = 0; x < width; x += 1){
+            world[xPos + x][yPos] = Tileset.WALL;
+            world[xPos + x][yPos + height - 1] = Tileset.WALL;
+        }
+        for(int y = 0; y < height; y += 1){
+            world[xPos][yPos + y] = Tileset.WALL;
+            world[xPos + width - 1][yPos + y] = Tileset.WALL;
+        }
+
+        // fill the inner part of the room
+        for(int x = 1; x < width - 1; x += 1){
+            for(int y = 1; y < height - 1; y += 1){
+                world[xPos + x][yPos + y] = Tileset.FLOOR;
+            }
+        }
     }
 }
