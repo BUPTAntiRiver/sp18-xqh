@@ -5,7 +5,9 @@ import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
 
+// import java.lang.classfile.instruction.BranchInstruction;
 import java.util.Random;
+import java.util.concurrent.TimeoutException;
 
 public class Game {
     TERenderer ter = new TERenderer();
@@ -36,7 +38,7 @@ public class Game {
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
 
-        /* Create a iterator to traverse the input string */
+        /* Traverse input string to get selection and seed*/
         int seed = 0;
         switch (input.charAt(0)){
             case 'N':break;
@@ -51,16 +53,38 @@ public class Game {
 
         Random r = new Random(seed);
 
+        /**
+         * @var finalWorldFrame is used to return
+         * @var floorWorldFrame stores the floor information
+         * @var wallWorldFrame stores the wall information
+         * the floor and wall will merge to get the final frame.
+         */
         TETile[][] finalWorldFrame = new TETile[WIDTH][HEIGHT];
-        resetTETile(finalWorldFrame);
+        TETile[][] floorWorldFrame = new TETile[WIDTH][HEIGHT];
+        TETile[][] wallWorldFrame = new TETile[WIDTH][HEIGHT];
 
-        int roomNumber = RandomUtils.uniform(r, 0, 10);
+        initTETile(finalWorldFrame);
+        initTETile(floorWorldFrame);
+        initTETile(wallWorldFrame);
+
+        int roomNumber = RandomUtils.uniform(r, 0, 20);
         int hallwayNumber = RandomUtils.uniform(r, 0, 10);
+
+        for(int i = 0; i < roomNumber; i += 1){
+            makeRoom(floorWorldFrame, wallWorldFrame, r);
+        }
+
+        for(int i = 0; i < hallwayNumber; i += 1){
+            makeHallway(floorWorldFrame, wallWorldFrame, r);
+        }
+
+        mergeFrame(finalWorldFrame, wallWorldFrame);
+        mergeFrame(finalWorldFrame, floorWorldFrame);
 
         return finalWorldFrame;
     }
 
-    public void resetTETile(TETile[][] t){
+    public void initTETile(TETile[][] t){
         for(int x = 0; x < WIDTH; x += 1){
             for(int y = 0; y < HEIGHT; y += 1){
                 t[x][y] = Tileset.NOTHING;
@@ -71,22 +95,92 @@ public class Game {
     /**
      * Create a random sized room on specific position.
      */
-    public void makeRoom(TETile[][] world, Random r, int xPos, int yPos){
+    public void makeRoom(TETile[][] floorWorld, TETile[][] wallWorld, Random r){
         int width = RandomUtils.uniform(r, 5, 10);
         int height = RandomUtils.uniform(r, 5, 10);
+        int xPos = RandomUtils.uniform(r, 0, 80);
+        int yPos = RandomUtils.uniform(r, 0, 30);
+        if(xPos + width >= WIDTH || yPos + height >= HEIGHT){
+            return;
+        }
         for(int x = 0; x < width; x += 1){
-            world[xPos + x][yPos] = Tileset.WALL;
-            world[xPos + x][yPos + height - 1] = Tileset.WALL;
+            wallWorld[xPos + x][yPos] = Tileset.WALL;
+            wallWorld[xPos + x][yPos + height - 1] = Tileset.WALL;
         }
         for(int y = 0; y < height; y += 1){
-            world[xPos][yPos + y] = Tileset.WALL;
-            world[xPos + width - 1][yPos + y] = Tileset.WALL;
+            wallWorld[xPos][yPos + y] = Tileset.WALL;
+            wallWorld[xPos + width - 1][yPos + y] = Tileset.WALL;
         }
 
         // fill the inner part of the room
         for(int x = 1; x < width - 1; x += 1){
             for(int y = 1; y < height - 1; y += 1){
-                world[xPos + x][yPos + y] = Tileset.FLOOR;
+                floorWorld[xPos + x][yPos + y] = Tileset.FLOOR;
+            }
+        }
+    }
+
+    public void makeHallway(TETile[][] floorWorld, TETile[][] wallWorld, Random r){
+        int orientation = RandomUtils.uniform(r, 0, 2);
+        switch (orientation){
+            // vertical
+            case 0:
+                int length = RandomUtils.uniform(r, 5, 30);
+                int xPos = RandomUtils.uniform(r, 0, 77);
+                int yPos = RandomUtils.uniform(r, 0, 30);
+                if(yPos + length > HEIGHT){
+                    return;
+                }
+
+                for(int i = 0; i < 3; i += 1){
+                    wallWorld[xPos + i][yPos] = Tileset.WALL;
+                    wallWorld[xPos + i][yPos + length - 1] = Tileset.WALL;
+                }
+                for(int i = 0; i < length; i += 1){
+                    wallWorld[xPos][yPos + i] = Tileset.WALL;
+                    wallWorld[xPos + 2][yPos + i] = Tileset.WALL;
+                }
+
+                for(int i = 1; i < length - 1; i += 1){
+                    floorWorld[xPos + 1][yPos + i] = Tileset.FLOOR;
+                }
+                break;
+            // horizontal
+            case 1:
+                length = RandomUtils.uniform(r, 5, 30);
+                xPos = RandomUtils.uniform(r, 0, 80);
+                yPos = RandomUtils.uniform(r, 0, 27);
+                if(xPos + length > WIDTH){
+                    return;
+                }
+
+                for(int i = 0; i < 3; i += 1){
+                    wallWorld[xPos][yPos + i] = Tileset.WALL;
+                    wallWorld[xPos + length - 1][yPos + i] = Tileset.WALL;
+                }
+                for(int i = 0; i < length; i += 1){
+                    wallWorld[xPos + i][yPos] = Tileset.WALL;
+                    wallWorld[xPos + i][yPos + 2] = Tileset.WALL;
+                }
+
+                for(int i = 1; i < length - 1; i += 1){
+                    floorWorld[xPos + i][yPos + 1] = Tileset.FLOOR;
+                }
+                break;
+            default:break;
+        }
+    }
+    /**
+     * Merge f2 to f1 which means f2 will overwrite f1 when comes to conflict.
+     * @param f1 the frame on the bottom
+     * @param f2 the frame above
+     */
+    public void mergeFrame(TETile[][] f1, TETile[][] f2){
+        for(int x = 0; x < WIDTH; x += 1){
+            for(int y = 0; y < HEIGHT; y += 1){
+                if(f2[x][y] != Tileset.NOTHING){
+                    f1[x][y] = f2[x][y];
+                }
             }
         }
     }
