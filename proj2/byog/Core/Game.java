@@ -16,10 +16,23 @@ public class Game {
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
 
+    public void startGame(TETile[][] world){
+
+    }
+
+
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
     public void playWithKeyboard() {
+        StringBuilder sb = new StringBuilder();
+        while(!StdDraw.hasNextKeyTyped()){
+
+        }
+        while(StdDraw.hasNextKeyTyped()){
+            sb.append(StdDraw.nextKeyTyped());
+        }
+        playWithInputString(sb.toString());
     }
 
     /**
@@ -43,13 +56,13 @@ public class Game {
         /* Traverse input string to get selection and seed*/
         int seed = 0;
         switch (input.charAt(0)){
-            case 'N':break;
-            case 'Q':return null;
-            case 'L':return null;
+            case 'n':break;
+            case 'q':return null;
+            case 'l':return null;
             default:return null;
         }
         for(int i = 1; i < input.length(); i += 1){
-            if(input.charAt(i) == 'S'){
+            if(input.charAt(i) == 's'){
                 break;
             }
             seed = seed * 10;
