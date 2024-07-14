@@ -1,5 +1,6 @@
 package byog.Core;
 
+import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import edu.princeton.cs.introcs.StdDraw;
 
@@ -9,8 +10,7 @@ import edu.princeton.cs.introcs.StdDraw;
  */
 public class Main {
     public static void main(String[] args) {
-        StdDraw.enableDoubleBuffering();
-        drawMenu();
+
         if (args.length > 1) {
             System.out.println("Can only have one argument - the input string");
             System.exit(0);
@@ -18,20 +18,12 @@ public class Main {
             Game game = new Game();
             TETile[][] worldState = game.playWithInputString(args[0]);
             System.out.println(TETile.toString(worldState));
+            Game.render(worldState);
         } else {
             Game game = new Game();
             game.playWithKeyboard();
         }
     }
 
-    public static void drawMenu(){
-        StdDraw.clear(StdDraw.BLACK);
-        StdDraw.setPenColor(StdDraw.WHITE);
-        StdDraw.text(0.5, 0.8, "CS61B GAME");
-        StdDraw.text(0.5, 0.55, "New Game [N]");
-        StdDraw.text(0.5, 0.5, "Load Game [L]");
-        StdDraw.text(0.5, 0.45, "Quit Game [Q]");
-        StdDraw.show();
-        StdDraw.pause(100);
-    }
+
 }
