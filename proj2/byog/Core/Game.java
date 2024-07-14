@@ -73,14 +73,16 @@ public class Game {
         int roomNumber = RandomUtils.uniform(r, 0, 30);
         int hallwayNumber = RandomUtils.uniform(r, 0, 10);
 
-        for(int i = 0; i < roomNumber; i += 1){
+        /*for(int i = 0; i < roomNumber; i += 1){
             Room room = new Room(r);
             room.drawFloor(floorWorldFrame);
             room.drawWall(wallWorldFrame);
-        }
+        }*/
 
         for(int i = 0; i < hallwayNumber; i += 1){
-            makeHallway(floorWorldFrame, wallWorldFrame, r);
+            Hallway hallway = new Hallway(r);
+            hallway.drawFloor(floorWorldFrame);
+            hallway.drawWall(wallWorldFrame);
         }
 
         mergeFrame(finalWorldFrame, wallWorldFrame);
